@@ -94,11 +94,18 @@
         }
 
         #online-members-list li {
+            display: flex;
+            align-items: center;
             padding: 8px;
             border-radius: 4px;
             margin-bottom: 5px;
             background-color: #40444b;
             color: #ffffff;
+        }
+
+        #online-members-list svg {
+            fill: #7289da; 
+            margin-right: 10px;
         }
 
         /* Username Popup */
@@ -148,7 +155,7 @@
     <!-- Username Popup -->
     <div id="username-popup">
         <h2>Welcome to CursedConvo</h2>
-        <input type="text" id="username-input" placeholder="Enter your username">
+        <input type="text" id="username-input" placeholder="Enter your username"onkeypress="handleKeyPress(event)">
         <button onclick="joinChat()">Join Chat</button>
     </div>
 
@@ -187,6 +194,7 @@
                 // Connect to WebSocket for chat
                 socket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`);
 
+                
                 // Handle incoming chat messages
                 socket.onmessage = function (e) {
                     const data = JSON.parse(e.data);
@@ -194,15 +202,36 @@
                     chatLog.innerHTML += `<p><strong>${data.sender}:</strong> ${data.message}</p>`;
                     chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
                 };
+                
+                // Handle WebSocket connection errors
+                socket.onerror = function (error) {
+                    alert('Username is already taken. Try with different Username!');
+                    location.reload();
+                };
 
-                // Connect to WebSocket for online members
+                Handle WebSocket connection close
+                socket.onclose = function (event) {
+                    if (event.code === 4000) {
+                        alert('Connection Error Occured. Please Refresh and Try Again!!');
+                    }
+                };
+                
+                Connect to WebSocket for online members
                 onlineMembersSocket = new WebSocket(`ws://${window.location.host}/ws/online/`);
 
                 // Handle incoming online members updates
                 onlineMembersSocket.onmessage = function (e) {
                     const users = JSON.parse(e.data).users;
                     const userList = document.getElementById('online-members-list');
-                    userList.innerHTML = users.map(user => `<li>${user}</li>`).join('');
+                    userList.innerHTML = users.map(user => `
+                        <li>
+                            <svg fill="none" width="20" height="20" style="vertical-align: middle; margin-right: 10px;" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-5 h-5" viewBox="0 0 24 24">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            ${user}
+                        </li>
+                    `).join('');
                 };
             } else {
                 alert('Please enter a valid username.');

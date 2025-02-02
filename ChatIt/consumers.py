@@ -1,11 +1,18 @@
-import json
+import json, logging
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 online_users = set()
 
 class ChatConsumer(AsyncWebsocketConsumer):
+
     async def connect(self):
         self.username = self.scope['url_route']['kwargs']['username']
+
+        #handles the same username error
+        if self.username in online_users:
+            raise Exception("Retry with a New User\n")
+        
+        #Otherwise it adds the new user to the online_users set
         online_users.add(self.username)
         self.room_name = "global_chat"
         self.room_group_name = f"chat_{self.room_name}"
@@ -17,13 +24,19 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.accept()
         await self.notify_online_users()
 
+    
     async def disconnect(self, close_code):
-        online_users.discard(self.username)
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
-        await self.notify_online_users()
+        try:
+            if hasattr(self, 'username') and self.username in online_users:
+                online_users.discard(self.username)
+                await self.channel_layer.group_discard(
+                    self.room_group_name,
+                    self.channel_name
+                )
+                await self.notify_online_users()
+
+        except AttributeError:
+            logging.error("\nRefresh and Try Again with a New Username!!\n")
 
     async def receive(self, text_data):
         await self.channel_layer.group_send(
