@@ -154,11 +154,15 @@
 
     <!-- Chat Container -->
     <div id="chat-container">
-        <div id="chat-header">CursedConvo</div>
+        <div id="chat-header">CursedConvo
+            <button id="logout-button" onclick="logout()" style="float:right; background-color: #ff4d4d; border: none; border-radius: 8px; padding: 10px 20px; color: white; cursor: pointer;">
+                Logout
+            </button>
+        </div>
         <div id="chat-log"></div>
         <div id="chat-input-container">
             <input type="text" id="chat-input" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
-            <button id="send-button" onclick="sendMessage()">Send</button>
+            <button id="send-button" onclick="sendMessage()">Shoot</button>
         </div>
     </div>
 
@@ -219,6 +223,25 @@
             if (event.key === 'Enter') {
                 sendMessage();
             }
+        }
+
+        // Logout Function
+        function logout() {
+            if (socket) {
+                socket.close(); // Close the WebSocket connection
+            }
+            if (onlineMembersSocket) {
+                onlineMembersSocket.close(); // Close the online members WebSocket connection
+            }
+            // Show the username popup again
+            document.getElementById('username-popup').style.display = 'block';
+            document.getElementById('chat-container').style.display = 'none';
+            document.getElementById('online-members-panel').style.display = 'none';
+            username = null;
+
+            setTimeout(function() {
+                location.reload();     // Refresh the page after a brief delay of 500ms
+            }, 500);
         }
     </script>
 </body>
