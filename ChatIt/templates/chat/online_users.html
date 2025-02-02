@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Online Users</title>
+</head>
+<body>
+    <h1>Online Users</h1>
+    <ul id="online-users"></ul>
+    <script>
+        const socket = new WebSocket('ws://' + window.location.host + '/ws/online/');
+        socket.onmessage = function(e) {
+            const users = JSON.parse(e.data).users;
+            const list = document.getElementById('online-users');
+            list.innerHTML = users.map(user => `<li>${user}</li>`).join('');
+        };
+    </script>
+</body>
+</html>
