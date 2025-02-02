@@ -5,13 +5,15 @@
     <style>
         /* General Styles */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Montserrat', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #36393f;
+            background-color: #0d1117; 
             color: #ffffff;
             display: flex;
             height: 100vh;
+            justify-content: center;
+            overflow: hidden;
         }
 
         /* Chat Container */
@@ -19,15 +21,21 @@
             flex: 1;
             display: flex;
             flex-direction: column;
+            background-color: #010409;
             padding: 20px;
+            margin-bottom: 10px;
+            width: 80%; /* Adjust width of the chat container */
         }
 
         /* Chat Header */
         #chat-header {
             font-size: 24px;
             font-weight: bold;
-            margin-bottom: 20px;
-            color: #ffffff;
+            margin-bottom: 15px;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         /* Chat Log */
@@ -35,9 +43,25 @@
             flex: 1;
             overflow-y: auto;
             background-color: #2f3136;
+            background-image: url('https://w0.peakpx.com/wallpaper/299/582/HD-wallpaper-fathers-stuff-ultra-aero-patterns-dark-black-glasses-pattern-male-crown-father-stuff-mustache-hats-necktie-thumbnail.jpg');
             border-radius: 8px;
             padding: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Chat Log Messages - Message Bubbles */
+        #chat-log p {
+            background-color: #7289da; /* Initial Message bubble color */
+            border-radius: 12px;
+            padding: 10px;
+            margin: 10px 0;
+            max-width: 40%;
+            color: white;
+            word-wrap: break-word;
+            align-self: flex-start;
+            margin-left: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         /* Chat Input */
@@ -49,9 +73,9 @@
         #chat-input {
             flex: 1;
             padding: 10px;
-            border: none;
+            border: 1px solid #40444b;
             border-radius: 8px;
-            background-color: #40444b;
+            background-color: #0d1117;
             color: #ffffff;
             outline: none;
         }
@@ -62,7 +86,7 @@
 
         #send-button {
             padding: 10px 20px;
-            background-color: #7289da;
+            background-color: #193097; 
             border: none;
             border-radius: 8px;
             color: #ffffff;
@@ -70,13 +94,13 @@
         }
 
         #send-button:hover {
-            background-color: #677bc4;
+            background-color: #011b94;
         }
 
         /* Online Members Panel */
         #online-members-panel {
             width: 250px;
-            background-color: #2f3136;
+            background-color: #0d1117;
             padding: 20px;
             border-left: 1px solid #202225;
         }
@@ -139,7 +163,7 @@
 
         #username-popup button {
             padding: 10px 20px;
-            background-color: #7289da;
+            background-color: #193097;
             border: none;
             border-radius: 8px;
             color: #ffffff;
@@ -147,7 +171,7 @@
         }
 
         #username-popup button:hover {
-            background-color: #677bc4;
+            background-color: #011b94;
         }
     </style>
 </head>
@@ -183,6 +207,31 @@
         let username = null;
         let socket = null;
         let onlineMembersSocket = null;
+        let userColors = {}; // Store each user's random color
+
+        // Function to choose a random color in hex format
+        function getRandomColor() {
+            // Define the color ranges (in HEX) for green, yellow, blue, and indigo
+            const colors = [
+                '#32CD32',  // Lime Green
+                '#228B22',  // Forest Green
+                '#25d366',  // Whatsapp Green
+                '#34A853',  // Google Green
+                '#011b94',  // Indigo-flight
+                '#0000FF',  // Blue
+                '#24a1de',  // Telegram Blue
+                '#1E90FF',  // Dodger Blue
+                '#4682B4',  // Steel Blue
+                '#4B0082',  // Indigo
+                '#6A5ACD',  // Slate Blue
+                '#483D8B',  // Dark Slate Blue
+            ];
+
+            // Pick a random color from the defined shades
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            return randomColor;
+        }
 
         // Function to join the chat
         function joinChat() {
@@ -194,12 +243,22 @@
                 // Connect to WebSocket for chat
                 socket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`);
 
+                // Assign a random color for this user
+                userColors[username] = getRandomColor();
                 
                 // Handle incoming chat messages
                 socket.onmessage = function (e) {
                     const data = JSON.parse(e.data);
                     const chatLog = document.getElementById('chat-log');
-                    chatLog.innerHTML += `<p><strong>${data.sender}:</strong> ${data.message}</p>`;
+
+                    // Apply the user's color to their message bubble
+                    const userColor = userColors[data.sender] || getRandomColor();
+                    userColors[data.sender] = userColor; // Save the color for this user
+
+                    chatLog.innerHTML += `
+                        <p style="background-color: ${userColor};">
+                            <strong style="color: white;">${data.sender}:</strong> ${data.message}
+                        </p>`;
                     chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
                 };
                 
@@ -209,14 +268,14 @@
                     location.reload();
                 };
 
-                Handle WebSocket connection close
+                // Handle WebSocket connection close
                 socket.onclose = function (event) {
                     if (event.code === 4000) {
                         alert('Connection Error Occured. Please Refresh and Try Again!!');
                     }
                 };
                 
-                Connect to WebSocket for online members
+                // Connect to WebSocket for online members
                 onlineMembersSocket = new WebSocket(`ws://${window.location.host}/ws/online/`);
 
                 // Handle incoming online members updates
