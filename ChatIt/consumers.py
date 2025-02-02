@@ -1,4 +1,5 @@
 import json, logging
+from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 online_users = set()
@@ -39,19 +40,24 @@ class ChatConsumer(AsyncWebsocketConsumer):
             logging.error("\nRefresh and Try Again with a New Username!!\n")
 
     async def receive(self, text_data):
+
+        timestamp = datetime.now().strftime("%D %I:%M %p")
+
         await self.channel_layer.group_send(
             self.room_group_name,
             {
                 "type": "chat_message",
                 "message": text_data,
-                "sender": self.username
+                "sender": self.username,
+                "timestamp": timestamp,
             }
         )
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
             "message": event["message"],
-            "sender": event["sender"]
+            "sender": event["sender"],
+            "timestamp": event["timestamp"],
         }))
 
     async def notify_online_users(self):

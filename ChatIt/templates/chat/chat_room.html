@@ -84,6 +84,36 @@
             color: #72767d;
         }
 
+        /* Message Bubble Styling */
+        .message-bubble {
+            background-color: #40444b;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            max-width: 50%;
+            word-wrap: break-word;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .message-header strong {
+            color: #7289da; /* Discord-like blue for the sender's name */
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #f0f0f0; /* Light gray for the timestamp */
+        }
+
+        .message-content {
+            color: #ffffff;
+        }
+
         #send-button {
             padding: 10px 20px;
             background-color: #193097; 
@@ -179,7 +209,7 @@
     <!-- Username Popup -->
     <div id="username-popup">
         <h2>Welcome to CursedConvo</h2>
-        <input type="text" id="username-input" placeholder="Enter your username"onkeypress="handleKeyPress(event)">
+        <input type="text" id="username-input" placeholder="Enter your username" onkeypress="handleKeyPress(event)">
         <button onclick="joinChat()">Join Chat</button>
     </div>
 
@@ -255,10 +285,21 @@
                     const userColor = userColors[data.sender] || getRandomColor();
                     userColors[data.sender] = userColor; // Save the color for this user
 
-                    chatLog.innerHTML += `
-                        <p style="background-color: ${userColor};">
-                            <strong style="color: white;">${data.sender}:</strong> ${data.message}
-                        </p>`;
+                    // Create a message bubble with the sender, message, and timestamp
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message-bubble');
+
+                    // Add background color to the message bubble
+                    messageElement.style.backgroundColor = userColor;
+
+                    messageElement.innerHTML = `
+                        <div class="message-header">
+                            <strong style="color: white;">${data.sender}</strong>
+                            <span class="timestamp">${data.timestamp}</span>
+                        </div>
+                        <div class="message-content">${data.message}</div>
+                    `;
+                    chatLog.appendChild(messageElement);
                     chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
                 };
                 
