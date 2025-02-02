@@ -1,28 +1,130 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat Room - {{ username }}</title>
+    <title>Chat Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #chat-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 400px;
+            padding: 20px;
+            display: none; /* Initially hidden */
+        }
+        #chat-log {
+            height: 300px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+        }
+        #chat-input {
+            width: calc(100% - 80px);
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        #send-button {
+            width: 70px;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #send-button:hover {
+            background-color: #218838;
+        }
+        #username-popup {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            text-align: center;
+        }
+        #username-popup input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            width: 80%;
+            margin-bottom: 10px;
+        }
+        #username-popup button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #username-popup button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <h1>Welcome, {{ username }}!</h1>
-    <div id="chat-log"></div>
-    <input id="chat-input" type="text">
-    <button onclick="sendMessage()">Send</button>
+    <!-- Username Popup -->
+    <div id="username-popup">
+        <h2>Enter Your Username</h2>
+        <input type="text" id="username-input" placeholder="Username">
+        <button onclick="joinChat()">Join Chat</button>
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chat-container">
+        <h2>Chat Room</h2>
+        <div id="chat-log"></div>
+        <input type="text" id="chat-input" placeholder="Type your message...">
+        <button id="send-button" onclick="sendMessage()">Send</button>
+    </div>
+
     <script>
-        const socket = new WebSocket(
-            `ws://${window.location.host}/ws/chat/${'{{ username }}'}/`
-        );
+        let username = null;
+        let socket = null;
 
-        socket.onmessage = function(e) {
-            const data = JSON.parse(e.data);
-            const chatLog = document.getElementById('chat-log');
-            chatLog.innerHTML += `<p><strong>${data.sender}:</strong> ${data.message}</p>`;
-        };
+        // Function to join the chat
+        function joinChat() {
+            username = document.getElementById('username-input').value.trim();
+            if (username) {
+                // Hide the popup and show the chat container
+                document.getElementById('username-popup').style.display = 'none';
+                document.getElementById('chat-container').style.display = 'block';
 
+                // Connect to WebSocket
+                socket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`);
+
+                // Handle incoming messages
+                socket.onmessage = function (e) {
+                    const data = JSON.parse(e.data);
+                    const chatLog = document.getElementById('chat-log');
+                    chatLog.innerHTML += `<p><strong>${data.sender}:</strong> ${data.message}</p>`;
+                    chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
+                };
+            } else {
+                alert('Please enter a valid username.');
+            }
+        }
+
+        // Function to send a message
         function sendMessage() {
             const input = document.getElementById('chat-input');
-            socket.send(input.value);
-            input.value = '';
+            if (socket && input.value.trim()) {
+                socket.send(input.value.trim());
+                input.value = '';
+            }
         }
     </script>
 </body>

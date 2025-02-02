@@ -2,16 +2,51 @@
 <html>
 <head>
     <title>Online Users</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #online-users-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 300px;
+            padding: 20px;
+        }
+        #online-users-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        #online-users-list li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        #online-users-list li:last-child {
+            border-bottom: none;
+        }
+    </style>
 </head>
 <body>
-    <h1>Online Users</h1>
-    <ul id="online-users"></ul>
+    <div id="online-users-container">
+        <h2>Online Users</h2>
+        <ul id="online-users-list"></ul>
+    </div>
+
     <script>
-        const socket = new WebSocket('ws://' + window.location.host + '/ws/online/');
-        socket.onmessage = function(e) {
+        const socket = new WebSocket(`ws://${window.location.host}/ws/online/`);
+
+        // Handle incoming messages
+        socket.onmessage = function (e) {
             const users = JSON.parse(e.data).users;
-            const list = document.getElementById('online-users');
-            list.innerHTML = users.map(user => `<li>${user}</li>`).join('');
+            const userList = document.getElementById('online-users-list');
+            userList.innerHTML = users.map(user => `<li>${user}</li>`).join('');
         };
     </script>
 </body>
