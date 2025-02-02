@@ -1,117 +1,204 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Chat Room</title>
+    <title>CursedConvo</title>
     <style>
+        /* General Styles */
         body {
             font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
             margin: 0;
             padding: 0;
+            background-color: #36393f;
+            color: #ffffff;
             display: flex;
-            justify-content: center;
-            align-items: center;
             height: 100vh;
         }
+
+        /* Chat Container */
         #chat-container {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            width: 400px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
             padding: 20px;
-            display: none; /* Initially hidden */
         }
+
+        /* Chat Header */
+        #chat-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        /* Chat Log */
         #chat-log {
-            height: 300px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
+            flex: 1;
             overflow-y: auto;
+            background-color: #2f3136;
+            border-radius: 8px;
+            padding: 10px;
             margin-bottom: 10px;
-            background-color: #f9f9f9;
         }
+
+        /* Chat Input */
+        #chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
         #chat-input {
-            width: calc(100% - 80px);
+            flex: 1;
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        #send-button {
-            width: 70px;
-            padding: 10px;
-            background-color: #28a745;
-            color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            background-color: #40444b;
+            color: #ffffff;
+            outline: none;
+        }
+
+        #chat-input::placeholder {
+            color: #72767d;
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            background-color: #7289da;
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
             cursor: pointer;
         }
+
         #send-button:hover {
-            background-color: #218838;
+            background-color: #677bc4;
         }
-        #username-popup {
-            background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+        /* Online Members Panel */
+        #online-members-panel {
+            width: 250px;
+            background-color: #2f3136;
             padding: 20px;
+            border-left: 1px solid #202225;
+        }
+
+        #online-members-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        #online-members-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #online-members-list li {
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            background-color: #40444b;
+            color: #ffffff;
+        }
+
+        /* Username Popup */
+        #username-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2f3136;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
         }
+
+        #username-popup h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
         #username-popup input {
             padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            border: none;
+            border-radius: 8px;
+            background-color: #40444b;
+            color: #ffffff;
+            outline: none;
             width: 80%;
             margin-bottom: 10px;
         }
+
         #username-popup button {
             padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
+            background-color: #7289da;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
+            color: #ffffff;
             cursor: pointer;
         }
+
         #username-popup button:hover {
-            background-color: #0056b3;
+            background-color: #677bc4;
         }
     </style>
 </head>
 <body>
     <!-- Username Popup -->
     <div id="username-popup">
-        <h2>Enter Your Username</h2>
-        <input type="text" id="username-input" placeholder="Username">
+        <h2>Welcome to CursedConvo</h2>
+        <input type="text" id="username-input" placeholder="Enter your username">
         <button onclick="joinChat()">Join Chat</button>
     </div>
 
     <!-- Chat Container -->
     <div id="chat-container">
-        <h2>Chat Room</h2>
+        <div id="chat-header">CursedConvo</div>
         <div id="chat-log"></div>
-        <input type="text" id="chat-input" placeholder="Type your message...">
-        <button id="send-button" onclick="sendMessage()">Send</button>
+        <div id="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button id="send-button" onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <!-- Online Members Panel -->
+    <div id="online-members-panel">
+        <div id="online-members-header">Online Members</div>
+        <ul id="online-members-list"></ul>
     </div>
 
     <script>
         let username = null;
         let socket = null;
+        let onlineMembersSocket = null;
 
         // Function to join the chat
         function joinChat() {
             username = document.getElementById('username-input').value.trim();
             if (username) {
-                // Hide the popup and show the chat container
+                // Hide the popup
                 document.getElementById('username-popup').style.display = 'none';
-                document.getElementById('chat-container').style.display = 'block';
 
-                // Connect to WebSocket
+                // Connect to WebSocket for chat
                 socket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`);
 
-                // Handle incoming messages
+                // Handle incoming chat messages
                 socket.onmessage = function (e) {
                     const data = JSON.parse(e.data);
                     const chatLog = document.getElementById('chat-log');
                     chatLog.innerHTML += `<p><strong>${data.sender}:</strong> ${data.message}</p>`;
                     chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
+                };
+
+                // Connect to WebSocket for online members
+                onlineMembersSocket = new WebSocket(`ws://${window.location.host}/ws/online/`);
+
+                // Handle incoming online members updates
+                onlineMembersSocket.onmessage = function (e) {
+                    const users = JSON.parse(e.data).users;
+                    const userList = document.getElementById('online-members-list');
+                    userList.innerHTML = users.map(user => `<li>${user}</li>`).join('');
                 };
             } else {
                 alert('Please enter a valid username.');
@@ -124,6 +211,13 @@
             if (socket && input.value.trim()) {
                 socket.send(input.value.trim());
                 input.value = '';
+            }
+        }
+
+        // Function to handle Enter key press
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
             }
         }
     </script>
