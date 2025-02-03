@@ -59,7 +59,7 @@ pip install -r requirements.txt
 
 ---
 
-### **Step 5: Configure the Application**
+### **Step 4: Configure the Application**
 
 1. Verify the `CHANNEL_LAYERS` setting in `settings.py` to use InMemory Channel:
 
@@ -78,7 +78,7 @@ pip install -r requirements.txt
 
 ---
 
-### **Step 6: Run the Application**
+### **Step 5: Run the Application**
 
 Start the Django development server with Daphne:
 
@@ -88,7 +88,7 @@ daphne CursedConvo.asgi:application
 
 ---
 
-### **Step 7: Access the Application**
+### **Step 6: Access the Application**
 
 Open your browser and navigate to:
 
