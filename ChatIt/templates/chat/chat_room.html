@@ -2,6 +2,8 @@
 <html>
 <head>
     <title>CursedConvo</title>
+    <link rel="icon" href="https://i.pinimg.com/474x/8a/df/ae/8adfae417bce01d1245128176f80c27f.jpg" sizes="32x32" type="image/x-icon">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Added for responsiveness -->
     <style>
         /* General Styles */
         body {
@@ -133,6 +135,15 @@
             background-color: #0d1117;
             padding: 20px;
             border-left: 1px solid #202225;
+            transition: right 0.3s ease-in-out, width 0.3s ease-in-out;
+        }
+        
+        #online-members-panel.active {
+            position: fixed;
+            top: 0;
+            height: 100vh;
+            z-index: 1000;
+            right: 0; /* Show the sidebar when active */
         }
 
         #online-members-header {
@@ -160,6 +171,25 @@
         #online-members-list svg {
             fill: #7289da; 
             margin-right: 10px;
+        }
+
+        /* Sidebar Toggle Button */
+        #sidebar-toggle {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 40px;
+            right: 10px;
+            background-color: #193097;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 15px;
+            color: #ffffff;
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        #sidebar-toggle:hover {
+            background-color: #011b94;
         }
 
         /* Username Popup */
@@ -203,6 +233,115 @@
         #username-popup button:hover {
             background-color: #011b94;
         }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            /* Adjust layout for tablets and smaller screens */
+            body {
+                flex-direction: column;
+                overflow: auto;
+            }
+
+            #chat-container {
+                width: 100%;
+                padding: 10px;
+                margin-bottom: 0;
+            }
+
+            #chat-header {
+                font-size: 20px;
+            }
+
+            #chat-log {
+                margin-bottom: 10px;
+            }
+
+            #chat-input-container {
+                gap: 5px;
+            }
+
+            #chat-input {
+                padding: 8px;
+            }
+
+            #send-button {
+                padding: 8px 15px;
+            }
+
+            /* Show the sidebar toggle button on mobile */
+            #sidebar-toggle {
+                display: block;
+                margin-top: 10px;
+            }
+
+            /* Adjust online members panel for mobile */
+            #online-members-panel {
+                display: none;
+                transition: right 0.3s ease-in-out, width 0.3s ease-in-out;
+            }
+            
+            #online-members-panel.active {
+                width: 80%; /* Make the sidebar wider on mobile */
+                right: 0; /* Show the sidebar when active */
+                display: block;
+            }
+        }
+
+        @media (max-width: 480px) {
+            /* Adjust layout for mobile phones */
+            body {
+                flex-direction: column;
+                overflow: auto;
+            }
+
+            #chat-header {
+                font-size: 18px;
+            }
+
+            #chat-log {
+                padding: 5px;
+            }
+
+            #chat-container {
+                width: auto;
+            }
+
+            .message-bubble {
+                max-width: 80%;
+                padding: 8px;
+            }
+
+            .message-header strong {
+                font-size: 14px;
+            }
+
+            .timestamp {
+                font-size: 10px;
+            }
+
+            .message-content {
+                font-size: 14px;
+            }
+
+            #chat-input {
+                padding: 6px;
+            }
+
+            #send-button {
+                padding: 6px 12px;
+            }
+
+            #online-members-panel {
+                display: none;
+                transition: right 0.3s ease-in-out, width 0.3s ease-in-out;
+            }
+            
+            #online-members-panel.active {
+                width: 90%; /* Make the sidebar even wider on smaller screens */
+                right: 0; /* Show the sidebar when active */
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
@@ -232,6 +371,9 @@
         <div id="online-members-header">Online Members</div>
         <ul id="online-members-list"></ul>
     </div>
+
+    <!-- Sidebar Toggle Button -->
+    <button id="sidebar-toggle" onclick="toggleSidebar()">☰ Online</button>
 
     <script>
         let username = null;
@@ -300,7 +442,10 @@
                         <div class="message-content">${data.message}</div>
                     `;
                     chatLog.appendChild(messageElement);
-                    chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
+
+                    if (window.innerWidth > 768) {
+                        chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
+                    }
                 };
                 
                 // Handle WebSocket connection errors
@@ -371,6 +516,12 @@
             setTimeout(function() {
                 location.reload();     // Refresh the page after a brief delay of 500ms
             }, 500);
+        }
+
+        // Function to toggle the sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('online-members-panel');
+            sidebar.classList.toggle('active');
         }
     </script>
 </body>
