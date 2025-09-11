@@ -35,8 +35,6 @@ ALLOWED_HOSTS = ["*"]
 # REDIS_URL
 REDIS_URL = os.environ.get("REDIS_URL")
 
-parsed_redis_url = urlparse(REDIS_URL)
-
 # Application definition
 
 INSTALLED_APPS = [
@@ -59,8 +57,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(parsed_redis_url.hostname, parsed_redis_url.port)],
-            "password": parsed_redis_url.password,
+            "hosts": [REDIS_URL],
         }
     }# This is the redis configured database using the RedisChannelLayer with Auth
 }
