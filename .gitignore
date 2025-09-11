@@ -1,0 +1,20 @@
+# Ignore Python bytecode
+__pycache__/
+*.py[cod]
+
+# Ignore environment variables file
+.env
+
+# Ignore VSCode settings folder
+.vscode/
+
+# Ignore database files (if you use SQLite locally)
+db.sqlite3
+
+# Ignore static files collected
+staticfiles/
+
+# Ignore logs
+*.log
+
+# Ignore any other secrets or temporary files you want to keep local only

@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
+from urllib.parse import urlparse
+
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,6 +32,10 @@ DEBUG = False
 
 ALLOWED_HOSTS = ["*"]
 
+# REDIS_URL
+REDIS_URL = os.environ.get("REDIS_URL")
+
+parsed_redis_url = urlparse(REDIS_URL)
 
 # Application definition
 
@@ -41,7 +50,7 @@ INSTALLED_APPS = [
     'ChatIt',
 ]
 
-ASGI_APPICATION = "cursedconvo.asgi.application"
+ASGI_APPICATION = "CursedConvo.asgi.application"
 
 CHANNEL_LAYERS = {
     # "default": {
@@ -50,7 +59,8 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("redis://:sXPagwQeuqnXw8nPOQZuyUJs8JOuXgs0@redis-12325.c8.us-east-1-4.ec2.redns.redis-cloud.com:12325/0")]
+            "hosts": [(parsed_redis_url.hostname, parsed_redis_url.port)],
+            "password": parsed_redis_url.password,
         }
     }# This is the redis configured database using the RedisChannelLayer with Auth
 }

@@ -1,10 +1,12 @@
-import json
+import json, os
 import redis.asyncio as redis
 from datetime import datetime
 from channels.generic.websocket import AsyncWebsocketConsumer
 
+from dotenv import load_dotenv
+load_dotenv()
 
-REDIS_URL = "redis://:sXPagwQeuqnXw8nPOQZuyUJs8JOuXgs0@redis-12325.c8.us-east-1-4.ec2.redns.redis-cloud.com:12325/0"
+REDIS_URL = os.environ.get("REDIS_URL")
 redis_client = redis.from_url(REDIS_URL, decode_responses=True)
 
 
