@@ -36,16 +36,20 @@ class ChatConsumer(AsyncWebsocketConsumer):
         await self.notify_online_users()
 
     async def disconnect(self, close_code):
-        if hasattr(self, 'username'):
-            await self.redis.hdel("online_users", self.username)
+        if hasattr(self, 'username') and self.scope.get("type") == "websocket":
+            try:
+                await self.redis.hdel("online_users", self.username)
 
-            await self.channel_layer.group_discard(
-                self.room_group_name,
-                self.channel_name
-            )
+                await self.channel_layer.group_discard(
+                    self.room_group_name,
+                    self.channel_name
+                )
 
-            await self.notify_online_users()
-            await self.redis.close()
+                await self.notify_online_users()
+            except Exception as e:
+                print(f"[disconnect error] {e}")
+            finally:
+                await self.redis.close()
 
     async def receive(self, text_data):
 
