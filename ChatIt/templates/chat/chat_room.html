@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>CursedConvo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* General Styles */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #0d1117; 
+            color: #ffffff;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        /* Chat Container */
+        #chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background-color: #010409;
+            padding: 20px;
+            margin-bottom: 10px;
+            width: 80%; /* Adjust width of the chat container */
+        }
+
+        /* Chat Header */
+        #chat-header {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* Chat Log */
+        #chat-log {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #2f3136;
+            background-image: url('https://w0.peakpx.com/wallpaper/299/582/HD-wallpaper-fathers-stuff-ultra-aero-patterns-dark-black-glasses-pattern-male-crown-father-stuff-mustache-hats-necktie-thumbnail.jpg');
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 20px;
+            box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Chat Log Messages - Message Bubbles */
+        #chat-log p {
+            background-color: #7289da; /* Initial Message bubble color */
+            border-radius: 12px;
+            padding: 10px;
+            margin: 10px 0;
+            max-width: 40%;
+            color: white;
+            word-wrap: break-word;
+            align-self: flex-start;
+            margin-left: 10px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Chat Input */
+        #chat-input-container {
+            display: flex;
+            gap: 10px;
+        }
+
+        #chat-input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #40444b;
+            border-radius: 8px;
+            background-color: #0d1117;
+            color: #ffffff;
+            outline: none;
+        }
+
+        #chat-input::placeholder {
+            color: #72767d;
+        }
+
+        /* Message Bubble Styling */
+        .message-bubble {
+            background-color: #40444b;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+            max-width: 50%;
+            word-wrap: break-word;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .message-header strong {
+            color: #7289da; /* Discord-like blue for the sender's name */
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #f0f0f0; /* Light gray for the timestamp */
+        }
+
+        .message-content {
+            color: #ffffff;
+        }
+
+        #send-button {
+            padding: 10px 20px;
+            background-color: #193097; /* Discord-like blue */
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        #send-button:hover {
+            background-color: #011b94;
+        }
+
+        /* Online Members Panel */
+        #online-members-panel {
+            width: 250px;
+            background-color: #0d1117;
+            padding: 20px;
+            border-left: 1px solid #202225;
+        }
+
+        #online-members-header {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        #online-members-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        #online-members-list li {
+            display: flex;
+            align-items: center;
+            padding: 8px;
+            border-radius: 4px;
+            margin-bottom: 5px;
+            background-color: #40444b;
+            color: #ffffff;
+        }
+
+        #online-members-list svg {
+            fill: #7289da; 
+            margin-right: 10px;
+        }
+
+        /* Username Popup */
+        #username-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: #2f3136;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+
+        #username-popup h2 {
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        #username-popup input {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            background-color: #40444b;
+            color: #ffffff;
+            outline: none;
+            width: 80%;
+            margin-bottom: 10px;
+        }
+
+        #username-popup button {
+            padding: 10px 20px;
+            background-color: #193097;
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        #username-popup button:hover {
+            background-color: #011b94;
+        }
+
+
+
+    </style>
+</head>
+<body>
+    <!-- Username Popup -->
+    <div id="username-popup">
+        <h2>Welcome to CursedConvo</h2>
+        <input type="text" id="username-input" placeholder="Enter your username">
+        <button onclick="joinChat()">Join Chat</button>
+    </div>
+
+    <!-- Chat Container -->
+    <div id="chat-container">
+        <div id="chat-header">CursedConvo
+            <button id="logout-button" onclick="logout()" style="float:right; background-color: #ff4d4d; border: none; border-radius: 8px; padding: 10px 20px; color: white; cursor: pointer;">
+                Logout
+            </button>
+        </div>
+        <div id="chat-log"></div>
+        <div id="chat-input-container">
+            <input type="text" id="chat-input" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+            <button id="send-button" onclick="sendMessage()">Shoot</button>
+        </div>
+    </div>
+
+    <!-- Online Members Panel -->
+    <div id="online-members-panel">
+        <div id="online-members-header">Online Members</div>
+        <ul id="online-members-list"></ul>
+    </div>
+
+    <script>
+        let username = null;
+        let socket = null;
+        let onlineMembersSocket = null;
+        let userColors = {}; // Store each user's random color
+
+        // Function to choose a random color in hex format
+        function getRandomColor() {
+            // Define the color ranges (in HEX) for green, yellow, blue, and indigo
+            const colors = [
+                '#32CD32',  // Lime Green
+                '#228B22',  // Forest Green
+                '#25d366',  // Whatsapp Green
+                '#34A853',  // Google Green
+                '#011b94',  // Indigo-flight
+                '#0000FF',  // Blue
+                '#24a1de',  // Telegram Blue
+                '#1E90FF',  // Dodger Blue
+                '#4682B4',  // Steel Blue
+                '#4B0082',  // Indigo
+                '#6A5ACD',  // Slate Blue
+                '#483D8B',  // Dark Slate Blue
+            ];
+
+            // Pick a random color from the defined shades
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+
+            return randomColor;
+        }
+
+
+        // Function to join the chat
+        function joinChat() {
+            username = document.getElementById('username-input').value.trim();
+            if (username) {
+                // Hide the popup
+                document.getElementById('username-popup').style.display = 'none';
+
+                // Assign a random color for this user
+                userColors[username] = getRandomColor();
+
+                // Connect to WebSocket for chat
+                socket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`);
+
+                // Handle WebSocket connection errors
+                socket.onerror = function (error) {
+                    alert('Username is already taken. Refresh and choose a different username.');
+                };
+
+                // Handle WebSocket connection close
+                socket.onclose = function (event) {
+                    if (event.code === 4000) {
+                        alert('Username is already taken. Please Refresh and choose a different username.');
+                    }
+                };
+
+                // Handle incoming chat messages
+                socket.onmessage = function (e) {
+                    const data = JSON.parse(e.data);
+                    const chatLog = document.getElementById('chat-log');
+
+                    // Apply the user's color to their message bubble
+                    const userColor = userColors[data.sender] || getRandomColor();
+                    userColors[data.sender] = userColor; // Save the color for this user
+
+                    // Create a message bubble with the sender, message, and timestamp
+                    const messageElement = document.createElement('div');
+                    messageElement.classList.add('message-bubble');
+
+                    // Add background color to the message bubble
+                    messageElement.style.backgroundColor = userColor;
+
+                    // //Withot Timestamp with color
+                    // chatLog.innerHTML += `
+                    //     <p style="background-color: ${userColor};">
+                    //         <strong style="color: white;">${data.sender}:</strong> ${data.message}
+                    //     </p>`;
+                    //with Timestamp but no color 
+                    messageElement.innerHTML = `
+                        <div class="message-header">
+                            <strong style="color: white;">${data.sender}</strong>
+                            <span class="timestamp">${data.timestamp}</span>
+                        </div>
+                        <div class="message-content">${data.message}</div>
+                    `;
+                    chatLog.appendChild(messageElement);
+                    chatLog.scrollTop = chatLog.scrollHeight; // Auto-scroll to the bottom
+                };
+
+                // Connect to WebSocket for online members
+                onlineMembersSocket = new WebSocket(`ws://${window.location.host}/ws/online/`);
+
+                // Handle incoming online members updates
+                onlineMembersSocket.onmessage = function (e) {
+                    const users = JSON.parse(e.data).users;
+                    const userList = document.getElementById('online-members-list');
+                    userList.innerHTML = users.map(user => `
+                        <li>
+                            <svg fill="none" width="20" height="20" style="vertical-align: middle; margin-right: 10px;" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-5 h-5" viewBox="0 0 24 24">
+                                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
+                                <circle cx="12" cy="7" r="4"></circle>
+                            </svg>
+                            ${user}
+                        </li>
+                    `).join('');
+                };
+            } else {
+                alert('Please enter a valid username.');
+            }
+        }
+
+        // Function to send a message
+        function sendMessage() {
+            const input = document.getElementById('chat-input');
+            if (socket && input.value.trim()) {
+                socket.send(input.value.trim());
+                input.value = '';
+            }
+        }
+
+        // Function to handle Enter key press
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        // Logout Function
+        function logout() {
+            if (socket) {
+                socket.close(); // Close the WebSocket connection
+            }
+            if (onlineMembersSocket) {
+                onlineMembersSocket.close(); // Close the online members WebSocket connection
+            }
+            // Show the username popup again
+            document.getElementById('username-popup').style.display = 'block';
+            document.getElementById('chat-container').style.display = 'none';
+            document.getElementById('online-members-panel').style.display = 'none';
+            username = null;
+
+            setTimeout(function() {
+                location.reload();     // Refresh the page after a brief delay of 500ms
+            }, 500);
+        }
+    </script>
+
+</body>
+</html>
