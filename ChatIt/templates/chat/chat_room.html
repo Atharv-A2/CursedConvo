@@ -327,7 +327,7 @@
                 };
 
                 // Connect to WebSocket for online members
-                onlineMembersSocket = new WebSocket(`ws://${window.location.host}/ws/online/`);
+                onlineMembersSocket = new WebSocket(`wss://${window.location.host}/ws/online/`);
 
                 // Handle incoming online members updates
                 onlineMembersSocket.onmessage = function (e) {
