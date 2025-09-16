@@ -54,7 +54,7 @@
     </div>
 
     <script>
-        const socket = new WebSocket(`ws://${window.location.host}/ws/online/`);
+        const socket = new WebSocket(`wss://${window.location.host}/ws/online/`);
 
         // Handle incoming messages
         socket.onmessage = function (e) {

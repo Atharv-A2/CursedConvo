@@ -279,7 +279,7 @@
                 userColors[username] = getRandomColor();
 
                 // Connect to WebSocket for chat
-                socket = new WebSocket(`ws://${window.location.host}/ws/chat/${username}/`);
+                socket = new WebSocket(`wss://${window.location.host}/ws/chat/${username}/`);
 
                 // Handle WebSocket connection errors
                 socket.onerror = function (error) {
