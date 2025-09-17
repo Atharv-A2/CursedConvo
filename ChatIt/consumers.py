@@ -48,8 +48,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 await self.notify_online_users()
             except Exception as e:
                 print(f"[disconnect error] {e}")
-            # finally:
-            #     await self.redis.close()       # Not closing the global redis client for each consumer
+            finally:
+                await self.redis.close()
 
     async def receive(self, text_data):
 
@@ -78,7 +78,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             "online_users_group",
             {
                 "type": "update_online_users",
-                "users": users,
+                "users": users
             }
         )
 
@@ -97,12 +97,12 @@ class OnlineUsersConsumer(AsyncWebsocketConsumer):
             "online_users_group",
             self.channel_name
         )
-        # await self.redis.close()      # Not closing the global redis client for each consumer
+        await self.redis.close()
 
     async def send_online_users(self):
         users = await self.redis.hgetall("online_users")
         await self.send(text_data=json.dumps({
-            "users": users
+            "users": list(users)
         }))
 
     async def update_online_users(self, event):
