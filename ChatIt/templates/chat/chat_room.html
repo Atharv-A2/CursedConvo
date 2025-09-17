@@ -49,7 +49,7 @@
         #chat-log {
             flex: 1;
             overflow-y: auto;
-            max-height: 60vh;
+            max-height: 100vh;
             min-height: 200px;
             background-color: #2f3136;
             background-image: url('https://w0.peakpx.com/wallpaper/299/582/HD-wallpaper-fathers-stuff-ultra-aero-patterns-dark-black-glasses-pattern-male-crown-father-stuff-mustache-hats-necktie-thumbnail.jpg');
@@ -138,7 +138,8 @@
 
         /* Online Members Panel */
         #online-members-panel {
-            width: 250px;
+            width: 100%;
+            max-width: 100%;
             background-color: #0d1117;
             padding: 20px;
             border-left: 1px solid #202225;
@@ -159,6 +160,7 @@
 
         #online-members-list li {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             padding: 8px;
             border-radius: 4px;
