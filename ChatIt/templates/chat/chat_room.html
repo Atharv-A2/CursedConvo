@@ -402,13 +402,14 @@
                 onlineMembersSocket.onmessage = function (e) {
                     const users = JSON.parse(e.data).users;
                     const userList = document.getElementById('online-members-list');
-                    userList.innerHTML = users.map(user => `
+
+                    userList.innerHTML = Object.keys(users).map(username => `
                         <li>
                             <svg fill="none" width="20" height="20" style="vertical-align: middle; margin-right: 10px;" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="w-5 h-5" viewBox="0 0 24 24">
                                 <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path>
                                 <circle cx="12" cy="7" r="4"></circle>
                             </svg>
-                            ${user}
+                            ${username}
                         </li>
                     `).join('');
                 };
